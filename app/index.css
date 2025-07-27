@@ -329,3 +329,199 @@ body {
   }
 }
 /* Category listing */
+
+.category-btn.active {
+    background-color: #dc3545;
+    color: white;
+}
+.disabled-card {
+    opacity: 0.5;
+    pointer-events: none;
+}
+/* Search  */
+.search-container {
+    position: relative;
+    width: 300px;
+}
+
+ .search-bar {
+    padding: 10px 15px;
+    border-radius: 25px;
+    border: 2px solid #ff6b6b;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+
+/* Billing Modul */
+.billing-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.billing-btn:hover {
+    background-color: #3e8e41;
+}
+.cart-count {
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 8px;
+    font-size: 12px;
+}
+ /* Categories and Food Items (previous styles remain the same) */
+        
+/* Billing Popup */
+.billing-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.billing-container {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.billing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.billing-title {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.pdf-btn {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pdf-btn:hover {
+    background-color: #d32f2f;
+}
+
+.summary-container {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.summary-title {
+    font-size: 18px;
+    margin-top: 0;
+    color: #555;
+}
+
+.summary-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.summary-item {
+    background-color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.item-count {
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.billing-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.billing-table th, .billing-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.billing-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    color: #555;
+}
+
+.billing-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.total-row {
+    font-weight: bold;
+    background-color: #f5f5f5;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+}
+
+.close-btn:hover {
+    color: #555;
+}

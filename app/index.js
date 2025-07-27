@@ -7,6 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
     let ItemID = (before_order_cnt[2] != "null") ? before_order_cnt[2] : "";
     let Order_ItemID = (before_order_cnt[3] != "null") ? before_order_cnt[3] : "";
+    if(before_order_cnt[0] !== "0"){
+      document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
+    }
     console.log(disabledCards)
     fetchRecords(appName, "All_Menu_Items", disabledCards , ItemID, before_order_cnt[0], Order_ItemID);
   });
@@ -33,23 +36,52 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
     {
      var filter_vars = "(Status==\"Active\")";
     }
+    if(reportname == "Your_Picks_Report" && type == "BillingRecords")
+    {
+      var filter_vars = `(Date_Str == "${getCurrentDateDDMMYYYY()}")`;
+    }
     const config = {
       appName: appname,
       reportName: reportname,
       criteria: filter_vars
     };
-    const response = await ZOHO.CREATOR.API.getAllRecords(config);
-    const data = response.data;
-    console.log(data)
-    if(reportname == "All_Menu_Items" && type == "Store")
-    {
-      orderlisted(data, type, ItemID, orderCnt, order_ID)
+    try{
+      const response = await ZOHO.CREATOR.API.getAllRecords(config);
+      const data = response.data;
+      if(reportname == "All_Menu_Items" && type == "Store")
+      {
+        orderlisted(data, type, ItemID, orderCnt, order_ID)
+      }
+      if(reportname == "All_Menu_Items" && type == "disabled")
+      {
+        orderlisted(data, type, ItemID, orderCnt, order_ID)
+      }
+      const loginuserID = await getLoginUserID();
+      const billcontainer = document.getElementById("billingContainer");
+      if(loginuserID === "myzentegra@gmail.com"){
+        if(reportname == "Your_Picks_Report" && type == "BillingRecords")
+        {
+          renderBillingPopup(data)
+        }
+      }else{
+        billcontainer.innerHTML = ""; 
+        billcontainer.style.display = "block"; 
+      }
+      return data
     }
-    if(reportname == "All_Menu_Items" && type == "disabled")
-    {
-      orderlisted(data, type, ItemID, orderCnt, order_ID)
+    catch (err) {
+    if (err && err.responseText) {
+      try {
+        const parsed = JSON.parse(err.responseText);
+        if (parsed.code != 3000) {
+          console.warn("No records found for criteria");
+        }
+        } catch (e) {
+          console.error("Error parsing responseText", e);
+        }
+      }
+      console.error("Unexpected error in getAllRecords:", err);
     }
-    return data
   } catch (error) {
     console.error("Error initializing or fetching:", error);
     return error
@@ -101,14 +133,14 @@ async function getStaffId_CheckOrderCount() {
                 console.warn("No records found for criteria");
                 return ["0", stafff_ID, "null","null"];
               }
-            } catch (e) {
-              console.error("Error parsing responseText", e);
-              return ["0", stafff_ID, "null","null"];
+              } catch (e) {
+                console.error("Error parsing responseText", e);
+                return ["0", stafff_ID, "null","null"];
+              }
             }
-          }
-        console.error("Unexpected error in getAllRecords:", err);
-        return ["0", stafff_ID, "null","null"];
-      }
+          console.error("Unexpected error in getAllRecords:", err);
+          return ["0", stafff_ID, "null","null"];
+        }
     }
     return ["0","null", "null","null"]; 
   } catch (err) {
@@ -130,7 +162,7 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
               "Staff" : before_order_cnt[1],
               "Menu_Category" : currentCatID,
               "Menu_Item": currentItemID,
-                "Date_Str" : getCurrentDateDDMMYYYY()
+              "Date_Str" : getCurrentDateDDMMYYYY()
             }
           }
           const Postconfig = {
@@ -145,7 +177,7 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
             var orders_id = response.data.ID;
             console.log("create orders_id = "+orders_id)
             document.getElementById("confirmed-popup").style.display = "flex";
-            document.getElementById("headingID").innerHTML = "Your order has been confirmed."
+            document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
             // Disable button
             getStaffId_CheckOrderCount().then((before_order_cnt) => {
               console.log("Order count:", before_order_cnt);
@@ -164,7 +196,7 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
       }  
     }  
     else{
-      document.getElementById("headingID").innerHTML = "Your order has been confirmed."
+      document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
       getStaffId_CheckOrderCount().then((before_order_cnt) => {
         console.log("Order count:", before_order_cnt);
         let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
@@ -173,6 +205,7 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
       });
     }
 }
+
 
 
 
