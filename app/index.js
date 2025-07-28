@@ -162,7 +162,8 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
               "Staff" : before_order_cnt[1],
               "Menu_Category" : currentCatID,
               "Menu_Item": currentItemID,
-              "Date_Str" : getCurrentDateDDMMYYYY()
+              "Date_Str" : getCurrentDateDDMMYYYY(),
+              "Date_field" : getCurrentDateDDMMYYYY()
             }
           }
           const Postconfig = {
@@ -252,7 +253,8 @@ window.onload = function() {
 function getCurrentDateDDMMYYYY() {
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
+  // const month = String(today.getMonth() + 1).padStart(2, '0'); // this showing 07
+  const month = today.toLocaleString('default', { month: 'short' });
   const year = today.getFullYear();
   return `${day}-${month}-${year}`;
 }
