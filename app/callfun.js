@@ -78,7 +78,7 @@ function orderlisted(orderData, ButtonAction, ItemID, orderCnt, order_ID) {
 
             let editIconHTML = "";
             if (!isOrderZero && isEnabled) {
-                const editURL = `https://creatorapp.zohopublic.com/32demo1zentegra/zeneats/Your_Picks/record-edit/Your_Picks_Report/${order_ID}/DGRmu7Osk9usPKxUOHXhy4CmOHeyGZ2VMrCn0sWzGupQOxeM7U4CrD90WOp6PvCj8pJz8Adue2vxDWpqn4wuqHdvC430CX9ACzJ4`;
+                const editURL = `https://creatorapp.zohopublic.com/zentegra/zeneats/Your_Picks/record-edit/Your_Picks_Report/${order_ID}/5yzBJmSVtNJWN0wbsRpDMVtEMr10mXsEAMW3uuFwg9zmbY48BwgP2QX9YXuAqaMW6JQ2NFDvxPqqMdb6MyHAh23jPhKE0g8GmFHk`;
                 editIconHTML = `<a href="javascript:void(0);" class="edit-icon" title="Edit" onclick="openEditModal('${editURL}')"><i class="bi bi-pencil-square"></i></a>`;
             }
 
@@ -138,14 +138,20 @@ function startSliderForCard(sliderId, imageList) {
 
     let currentIndex = 0;
 
-    function setImage(index) {
+    async function setImage(index) {
         const imageData = imageList[index];
         const imageTag = images[index];
-
+        var creator_URL = "";
+        const loginuserIEmail = await getLoginUserID();
+        if(loginuserIEmail === "nmg214@nmg.cpa"){
+            creator_URL = "https://creatorapp.zoho.com";
+        }else{
+            creator_URL = "https://zeneats.zohocreatorportal.com";
+        }
         if (typeof imageData === 'object' && imageData.filename && imageData.url) {
-            ZOHO.CREATOR.UTIL.setImageData(imageTag, "https://creatorapp.zoho.com" + imageData);
+            ZOHO.CREATOR.UTIL.setImageData(imageTag, creator_URL + imageData);
         } else if (typeof imageData === 'string') {
-            imageTag.src = "https://creatorapp.zoho.com" + imageData;
+            imageTag.src = creator_URL + imageData;
         }
     }
 
@@ -162,25 +168,87 @@ function startSliderForCard(sliderId, imageList) {
 }
 
 // Billing Module
+// DOM elements
+const billingBtn = document.getElementById("billingBtn");
+const billingPopup = document.getElementById("billingPopup");
+const cartCount = document.getElementById("cartCount");
+const summaryItems = document.getElementById("summaryItems");
+const billingTableBody = document.getElementById("billingTableBody");
+// const grandTotal = document.getElementById("grandTotal");
+const billcontainer = document.getElementById("billingContainer");
 
-function billing(){
-    fetchRecords(appName, "Your_Picks_Report", "BillingRecords" , "null", "null", "null");
+let orders = []; // dynamically fetched from Creator
+
+// Initialize billing
+function billing() {
+  fetchRecords(appName, "Your_Picks_Report", "BillingRecords", "null", "null", "null");
 }
 
-// function RenderBilling(billData){
-//     const foodListContainer = document.getElementById("billing-container");
-//     if (billData.length === 0) {
-//         foodListContainer.innerHTML = "<p>No data available.</p>";
-//         return;
-//     }
-//     billData.forEach(item => {
-//         console.log("item = ",item)
-//     });
+// Event listeners
+billingBtn.addEventListener('click', openBillingPopup);
+
+// Billing popup handlers
+function openBillingPopup() {
+    billingPopup.style.display = "flex";
+    renderBillingPopup();
+}
+
+function closeBillingPopup() {
+  billingPopup.style.display = "none";
+}
+
+function updateCartCount(ordercnt_obj) {
+    cartCount.textContent = ordercnt_obj.length;
+}
+
+function renderBillingPopup(ordersObj) {
+  const itemMap = new Map();
+  const countMap = {};
+
+  ordersObj.forEach(item => {
+    // Count items
+    countMap[item.id] = (countMap[item.id] || 0) + 1;
+
+    // Store unique items by ID
+    if (!itemMap.has(item.id)) {
+      itemMap.set(item.id, { ...item });
+    }
+  });
+
+  // Convert Map to array of unique items
+  const uniqueItems = Array.from(itemMap.values());
+
+  // Render summary items with counts
+  summaryItems.innerHTML = uniqueItems.map(item =>
+    `<div class="summary-item">
+      <span>${item.name}</span>
+      <span class="item-count">${countMap[item.id]}</span>
+    </div>`
+  ).join("");
+
+  // Render billing table
+  billingTableBody.innerHTML = ordersObj.map(item => `
+    <tr>
+        <td>${item.stafName}</td>
+        <td colspan="2">${item.name}</td>
+    </tr>
+  `).join("");
+}
+
+function generatePDF() {
+  alert("PDF generation would happen here in a real implementation");
+}
+
+
+
+
+// function billing(){
+//     fetchRecords(appName, "Your_Picks_Report", "BillingRecords" , "null", "null", "null");
 // }
 
 
 
-// Order data
+// // Order data
 // let orders = [];
 
 // // DOM elements

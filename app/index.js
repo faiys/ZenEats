@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 //Get Email ID
-// Zoho.loginuserid
 function getLoginUserID() {
   return ZOHO.CREATOR.init().then(() => {
     const initParams_login = ZOHO.CREATOR.UTIL.getInitParams();
@@ -58,10 +57,17 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
       }
       const loginuserID = await getLoginUserID();
       const billcontainer = document.getElementById("billingContainer");
-      if(loginuserID === "myzentegra@gmail.com"){
+      if(loginuserID === "nmg214@nmg.cpa"){
         if(reportname == "Your_Picks_Report" && type == "BillingRecords")
         {
-          renderBillingPopup(data)
+           orders = data.map(item => ({
+              id: item.Menu_Item.ID,
+              name: item.Menu_Item.display_value,
+              recordID : item.ID,
+              stafName : item.Staff.display_value
+            }));
+            renderBillingPopup(orders);
+            updateCartCount(orders);
         }
       }else{
         billcontainer.innerHTML = ""; 
@@ -70,11 +76,13 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
       return data
     }
     catch (err) {
+      console.log("Store - "+err)
     if (err && err.responseText) {
       try {
         const parsed = JSON.parse(err.responseText);
+        
         if (parsed.code != 3000) {
-          console.warn("No records found for criteria");
+          console.warn("No records in Store Report found for criteria");
         }
         } catch (e) {
           console.error("Error parsing responseText", e);
@@ -97,20 +105,26 @@ async function getStaffId_CheckOrderCount() {
       reportName: "All_Staffs",
       criteria: `(Email == "${loginuserID}")`
     };
-
+    console.log(Staffconfig);
     const Staff_response = await ZOHO.CREATOR.API.getAllRecords(Staffconfig);
+    console.log(Staff_response);
     const Staffdata = Staff_response.data;
-    console.log(Staffdata);
     if (Staffdata && Staffdata.length > 0) {
       const stafff_ID = Staffdata[0]["ID"];
       console.log("Staff ID:", stafff_ID);
-        
+      var orderReport = "";
+        if(Staffdata[0]["Email"] === "nmg214@nmg.cpa"){
+            orderReport = "Your_Picks_Report";
+        }else{
+            orderReport = "My_Orders";
+        }
         const criteria = `(Staff.ID == ${stafff_ID} && Date_Str == "${getCurrentDateDDMMYYYY()}")`;
           const cnt_Fetchconfig = {
             appName: appName,
-            reportName: "Your_Picks_Report",
+            reportName: orderReport,
             criteria: criteria
           };
+          console.log("get pick - "+ cnt_Fetchconfig)
           try {
             const Order_cnt_response = await ZOHO.CREATOR.API.getAllRecords(cnt_Fetchconfig);
             console.log(Order_cnt_response)

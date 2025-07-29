@@ -404,7 +404,7 @@ body {
     background-color: white;
     padding: 25px;
     border-radius: 10px;
-    max-width: 800px;
+    /* max-width: 800px; */
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
