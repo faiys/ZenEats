@@ -235,10 +235,6 @@ function renderBillingPopup(ordersObj) {
   `).join("");
 }
 
-function generatePDF() {
-  alert("PDF generation would happen here in a real implementation");
-}
-
 
 
 
