@@ -1,4 +1,5 @@
 const appName = "zeneats";
+document.getElementById("currendateID").innerHTML = getCurrentDateDDMMYYYY();
 // Onload first run
 window.onload = fetchData();
 document.addEventListener("DOMContentLoaded", () => {
@@ -57,7 +58,7 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
       }
       const loginuserID = await getLoginUserID();
       const billcontainer = document.getElementById("billingContainer");
-      if(loginuserID === "nmg214@nmg.cpa" || loginuserID === "faiyas@zentegra.com" || loginuserID === "bhagyaraj@zentegra.com" || loginuserID === "sanket@zentegra.com"){
+      if(loginuserID === "nmg214@nmg.cpa" || loginuserID === "faiyas@zentegra.com" || loginuserID === "bhagyaraj@zentegra.com" || loginuserID === "sanket@zentegra.com" || loginuserID === "vijey@zentegra.com" || loginuserID === "jose@zentegra.com"){
         if(reportname == "Your_Picks_Report" && type == "BillingRecords")
         {
            orders = data.map(item => ({

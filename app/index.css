@@ -12,7 +12,19 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+.order-date {
+    font-size: 14px;
+    font-weight: 300;
+    color: #6c757d;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+    font-size: 13px;
+}
 
+.header-left {
+    display: flex;
+    flex-direction: column;
+}
 .header h1 {
     color: white;
     margin: 0;
