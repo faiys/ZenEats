@@ -222,10 +222,6 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
     }
 }
 
-
-
-
-
 // Page Js
 let currentCatID = "";
 let currentItemID = "";
