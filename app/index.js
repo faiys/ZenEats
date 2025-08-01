@@ -4,14 +4,14 @@ document.getElementById("currendateID").innerHTML = getCurrentDateDDMMYYYY();
 window.onload = fetchData();
 document.addEventListener("DOMContentLoaded", () => {
   getStaffId_CheckOrderCount().then((before_order_cnt) => {
-    console.log("Order count:", before_order_cnt);
+    // console.log("Order count:", before_order_cnt);
     let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
     let ItemID = (before_order_cnt[2] != "null") ? before_order_cnt[2] : "";
     let Order_ItemID = (before_order_cnt[3] != "null") ? before_order_cnt[3] : "";
     if(before_order_cnt[0] !== "0"){
       document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
     }
-    console.log(disabledCards)
+    // console.log(disabledCards)
     fetchRecords(appName, "All_Menu_Items", disabledCards , ItemID, before_order_cnt[0], Order_ItemID);
   });
 });
@@ -77,7 +77,7 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
       return data
     }
     catch (err) {
-      console.log("Store - "+err)
+      // console.log("Store - "+err)
     if (err && err.responseText) {
       try {
         const parsed = JSON.parse(err.responseText);
@@ -99,20 +99,20 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
 async function getStaffId_CheckOrderCount() {
   try {
     const loginuserID = await getLoginUserID();
-    console.log("User ID from other function:", loginuserID);
+    // console.log("User ID from other function:", loginuserID);
 
     const Staffconfig = {
       appName: appName,
       reportName: "All_Staffs",
       criteria: `(Email == "${loginuserID}")`
     };
-    console.log(Staffconfig);
+    // console.log(Staffconfig);
     const Staff_response = await ZOHO.CREATOR.API.getAllRecords(Staffconfig);
-    console.log(Staff_response);
+    // console.log(Staff_response);
     const Staffdata = Staff_response.data;
     if (Staffdata && Staffdata.length > 0) {
       const stafff_ID = Staffdata[0]["ID"];
-      console.log("Staff ID:", stafff_ID);
+      // console.log("Staff ID:", stafff_ID);
       var orderReport = "";
         if(Staffdata[0]["Email"] === "nmg214@nmg.cpa"){
             orderReport = "Your_Picks_Report";
@@ -125,12 +125,12 @@ async function getStaffId_CheckOrderCount() {
             reportName: orderReport,
             criteria: criteria
           };
-          console.log("get pick - "+ cnt_Fetchconfig)
+          // console.log("get pick - "+ cnt_Fetchconfig)
           try {
             const Order_cnt_response = await ZOHO.CREATOR.API.getAllRecords(cnt_Fetchconfig);
-            console.log(Order_cnt_response)
+            // console.log(Order_cnt_response)
             if (Order_cnt_response && Order_cnt_response.code === 3000) {
-              console.log(Order_cnt_response)
+              // console.log(Order_cnt_response)
               var order_count = Order_cnt_response.data.length;
               const item_ID = Order_cnt_response.data[0].Menu_Item.ID;
               const ord_id = Order_cnt_response.data[0].ID;
@@ -145,7 +145,7 @@ async function getStaffId_CheckOrderCount() {
             try {
               const parsed = JSON.parse(err.responseText);
               if (parsed.code != 3000) {
-                console.warn("No records found for criteria");
+                // console.warn("No records found for criteria");
                 return ["0", stafff_ID, "null","null"];
               }
               } catch (e) {
@@ -168,7 +168,7 @@ async function getStaffId_CheckOrderCount() {
 async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
     await ZOHO.CREATOR.init();
     const before_order_cnt = await getStaffId_CheckOrderCount();
-    console.log("before_order_cnt =" + before_order_cnt)
+    // console.log("before_order_cnt =" + before_order_cnt)
     if(before_order_cnt[0] == "0"){
     try{
         // POST API
@@ -187,18 +187,18 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
             data : JsonFields
           }
           ZOHO.CREATOR.API.addRecord(Postconfig).then(function(response){
-            console.log(response)
+            // console.log(response)
           if(response.code == 3000){
-            console.log("Record added successfully");
+            // console.log("Record added successfully");
             var orders_id = response.data.ID;
-            console.log("create orders_id = "+orders_id)
+            // console.log("create orders_id = "+orders_id)
             document.getElementById("confirmed-popup").style.display = "flex";
             document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
             // Disable button
             getStaffId_CheckOrderCount().then((before_order_cnt) => {
-              console.log("Order count:", before_order_cnt);
+              // console.log("Order count:", before_order_cnt);
               let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
-              console.log(disabledCards)
+              // console.log(disabledCards)
               fetchRecords(appName, "All_Menu_Items", disabledCards, currentItemID ,before_order_cnt[0], orders_id);
             });
           }
@@ -214,9 +214,9 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
     else{
       document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
       getStaffId_CheckOrderCount().then((before_order_cnt) => {
-        console.log("Order count:", before_order_cnt);
+        // console.log("Order count:", before_order_cnt);
         let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
-        console.log(disabledCards)
+        // console.log(disabledCards)
         fetchRecords(appName, "All_Menu_Items", disabledCards,currentItemID ,before_order_cnt[0],"null");
       });
     }
@@ -236,8 +236,8 @@ function showPopup(itemName, catID, itemID) {
 // Called when user confirms
 function confirmOrder() {
     document.getElementById("popup").style.display = "none";
-    console.log("cat_ID =", currentCatID);
-    console.log("Item_ID =", currentItemID);
+    // console.log("cat_ID =", currentCatID);
+    // console.log("Item_ID =", currentItemID);
     // POST API
     Post_manuAPi(appName, "Your_Picks", currentItemID, currentCatID)
 }
@@ -282,7 +282,7 @@ function fetchData() {
 
   // Simulate an async operation (e.g., API call)
   setTimeout(() => {
-    console.log("Data loaded.");
+    // console.log("Data loaded.");
     hideLoader();
   }, 2000);
 }
