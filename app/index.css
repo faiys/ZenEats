@@ -383,7 +383,7 @@ body {
     font-weight: bold;
     display: flex;
     align-items: center;
-    gap: 8px;
+    /* gap: 8px; */
 }
 
 .billing-btn:hover {
@@ -536,4 +536,239 @@ body {
 
 .close-btn:hover {
     color: #555;
+}
+
+/* Add Expense */
+.expense-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+.expense-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 1200px;
+    width: 55%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+
+}
+.modal-header {
+    padding: 0.4rem;
+    text-align: center;
+    margin-bottom: 15px;
+    position: relative;
+}
+.modal-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d3748;
+}
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 14px;
+    letter-spacing: 0.025em;
+}
+
+.input-container {
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 20px;
+    padding-left: 50px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #f7fafc;
+    transition: all 0.3s ease;
+    color: #2d3748;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4299e1;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-group input::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+    font-size: 16px;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.form-group input:focus + .input-icon {
+    color: #4299e1;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4299e1;
+    font-weight: 600;
+    font-size: 16px;
+    z-index: 1;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* .btn {
+    flex: 1;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+} */
+
+.btn-close {
+    background: #edf2f7;
+    color: #4a5568;
+}
+
+.btn-close:hover {
+    background: #e2e8f0;
+    transform: translateY(-1px);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(66, 153, 225, 0.4);
+}
+
+.btn-save:active {
+    transform: translateY(0);
+}
+
+/* Form validation styles */
+.form-group.error input {
+    border-color: #e53e3e;
+    background: #fed7d7;
+}
+
+.form-group.success input {
+    border-color: #38a169;
+    background: #c6f6d5;
+}
+
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .modal-title {
+        font-size: 24px;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        padding: 14px 20px;
+    }
+}
+
+/* Focus indicators */
+.form-group:focus-within label {
+    color: #4299e1;
+}
+
+/* Subtle animations */
+.form-group {
+    animation: fadeInUp 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.error-message {
+color: #e53e3e;
+font-size: 12px;
+margin-top: 5px;
+transition: opacity 0.3s ease;
+opacity: 1;
+}
+.amount-container {
+background: #f8fafc;
+border: 1px solid #e2e8f0;
+border-radius: 8px;
+padding: 16px 12px;
+text-align: center;
+transition: all 0.2s ease;
+}
+
+.amount-container:hover {
+background: #edf2f7;
+border-color: #cbd5e0;
+}
+.right-section {
+width: 200px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.amount-text {
+font-size: 16px;
+font-weight: 600;
+color: #2d3748;
+}
+/* Ensure both sections are aligned */
+.row {
+    display: flex;
+    margin: 0;
+}
+.col-8, .col-4 {
+    display: flex;
+    padding: 0 15px;
 }

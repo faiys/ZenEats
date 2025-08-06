@@ -4,7 +4,7 @@ document.getElementById("currendateID").innerHTML = getCurrentDateDDMMYYYY();
 window.onload = fetchData();
 document.addEventListener("DOMContentLoaded", () => {
   getStaffId_CheckOrderCount().then((before_order_cnt) => {
-    // console.log("Order count:", before_order_cnt);
+    // console.log("Order list:", before_order_cnt);
     let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
     let ItemID = (before_order_cnt[2] != "null") ? before_order_cnt[2] : "";
     let Order_ItemID = (before_order_cnt[3] != "null") ? before_order_cnt[3] : "";
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("headingID").innerHTML = "Thanks! Your order is confirmed."
     }
     // console.log(disabledCards)
-    fetchRecords(appName, "All_Menu_Items", disabledCards , ItemID, before_order_cnt[0], Order_ItemID);
+    fetchRecords(appName, "All_Menu_Items", disabledCards , ItemID, before_order_cnt[0], Order_ItemID, before_order_cnt[4]);
   });
 });
 
@@ -28,18 +28,28 @@ function getLoginUserID() {
   });
 }
 
-async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_ID ) {
+async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_ID, shift_id ) {
   try {
     await ZOHO.CREATOR.init();
+    // console.log(shift_id)
     // Get Records API
     if(reportname == "All_Menu_Items" && type == "Store")
     {
-     var filter_vars = "(Status==\"Active\")";
+     var filter_vars = `(Status==\"Active\" && Menu_Category.Shift_Allocation==${shift_id})`;
     }
-    if(reportname == "Your_Picks_Report" && type == "BillingRecords")
+    if(reportname == "All_Menu_Items" && type == "disabled")
     {
-      var filter_vars = `(Date_Str == "${getCurrentDateDDMMYYYY()}")`;
+     var filter_vars = `(Status==\"Active\" && Menu_Category.Shift_Allocation==${shift_id})`;
     }
+    if(reportname == "Your_Picks_Report" && type == "BillingRecords" || type == "expenseAll")
+    {
+      var filter_vars = `(Date_Str == "${getCurrentDateDDMMYYYY()}" && Staff.Shift_Allocation == ${shift_id})`;
+    }
+    if(reportname == "All_Expenses" && type == "getExpanse")
+    {
+      var filter_vars = `(Date_field == "${getCurrentDateDDMMYYYY()}" && Staff.Shift_Allocation == ${shift_id})`;
+    }
+    // console.log(filter_vars)
     const config = {
       appName: appname,
       reportName: reportname,
@@ -57,8 +67,9 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
         orderlisted(data, type, ItemID, orderCnt, order_ID)
       }
       const loginuserID = await getLoginUserID();
-      const billcontainer = document.getElementById("billingContainer");
-      if(loginuserID === "nmg214@nmg.cpa" || loginuserID === "faiyas@zentegra.com" || loginuserID === "bhagyaraj@zentegra.com" || loginuserID === "sanket@zentegra.com" || loginuserID === "vijey@zentegra.com" || loginuserID === "jose@zentegra.com"){
+      const billcontainer = document.getElementById("billingcontainer"); 
+      const expansecontainer = document.getElementById("expensecontainer");
+      if(loginuserID === "nmg214@nmg.cpa"  || loginuserID === "faiyas@zentegra.com" || loginuserID === "bhagyaraj@zentegra.com" || loginuserID === "sanket@zentegra.com" || loginuserID === "vijey@zentegra.com" || loginuserID === "jose@zentegra.com"){
         if(reportname == "Your_Picks_Report" && type == "BillingRecords")
         {
            orders = data.map(item => ({
@@ -70,10 +81,41 @@ async function fetchRecords(appname, reportname, type, ItemID, orderCnt, order_I
             renderBillingPopup(orders);
             updateCartCount(orders);
         }
-      }else{
+        // || loginuserID === "faiyas@zentegra.com"
+      }
+      else{
         billcontainer.innerHTML = ""; 
         billcontainer.style.display = "block"; 
+        expansecontainer.innerHTML = ""; 
+        expansecontainer.style.display = "block"; 
       }
+      if(loginuserID === "nmg214@nmg.cpa" || loginuserID === "faiyas@zentegra.com"  || loginuserID === "vijey@zentegra.com" || loginuserID === "jose@zentegra.com"){
+          expansecontainer.style.display = "flex"; 
+          if(reportname == "Your_Picks_Report" && type == "expenseAll" && data.length > 0)
+          {
+            let actual_amt = data.length * 100;
+            document.getElementById("actual").value = actual_amt;
+          }
+          else if(reportname == "All_Expenses" && type == "getExpanse")
+          {
+              // console.log("Expense - ", data)
+              // document.getElementById("actual").value = data[0]["Actual_Amount"];
+              // document.getElementById("spent").value = data[0]["Amount_Spent"];
+              // document.getElementById("receivable").value = data[0]["Receivable_Balance"];
+
+              document.getElementById("actamt").innerHTML = data[0]["Actual_Amount"];
+              document.getElementById("spentamt").innerHTML = data[0]["Amount_Spent"];
+              document.getElementById("recamt").innerHTML = data[0]["Receivable_Balance"];
+          }
+          else{
+            // document.getElementById("expensePopup").style.display = "none";
+            console.log("No records in Store Report found for criteria test" )
+          }
+        }
+        else{
+          expansecontainer.innerHTML = ""; 
+          expansecontainer.style.display = "block"; 
+        }
       return data
     }
     catch (err) {
@@ -112,7 +154,8 @@ async function getStaffId_CheckOrderCount() {
     const Staffdata = Staff_response.data;
     if (Staffdata && Staffdata.length > 0) {
       const stafff_ID = Staffdata[0]["ID"];
-      // console.log("Staff ID:", stafff_ID);
+      const staff_shift_id = Staffdata[0]["Shift_Allocation"]["ID"];
+      // console.log("Staffshift ID", Staffdata[0]["Shift_Allocation"]["ID"]);
       var orderReport = "";
         if(Staffdata[0]["Email"] === "nmg214@nmg.cpa"){
             orderReport = "Your_Picks_Report";
@@ -134,10 +177,10 @@ async function getStaffId_CheckOrderCount() {
               var order_count = Order_cnt_response.data.length;
               const item_ID = Order_cnt_response.data[0].Menu_Item.ID;
               const ord_id = Order_cnt_response.data[0].ID;
-              return [order_count.toString(),stafff_ID, item_ID, ord_id]; 
+              return [order_count.toString(),stafff_ID, item_ID, ord_id, staff_shift_id]; 
             }
             else{
-              return ["0",stafff_ID, "null","null"]; 
+              return ["0",stafff_ID, "null","null",staff_shift_id]; 
             }
           }
           catch (err) {
@@ -146,24 +189,23 @@ async function getStaffId_CheckOrderCount() {
               const parsed = JSON.parse(err.responseText);
               if (parsed.code != 3000) {
                 // console.warn("No records found for criteria");
-                return ["0", stafff_ID, "null","null"];
+                return ["0", stafff_ID, "null","null", staff_shift_id];
               }
               } catch (e) {
                 console.error("Error parsing responseText", e);
-                return ["0", stafff_ID, "null","null"];
+                return ["0", stafff_ID, "null","null", staff_shift_id];
               }
             }
           console.error("Unexpected error in getAllRecords:", err);
-          return ["0", stafff_ID, "null","null"];
+          return ["0", stafff_ID, "null","null",staff_shift_id];
         }
     }
-    return ["0","null", "null","null"]; 
+    return ["0","null", "null","null", "null"]; 
   } catch (err) {
     console.error("Error in getStaffId_CheckOrderCount:", err);
-    return ["0","null", "null","null"]; 
+    return ["0","null", "null","null", "null"]; 
   }
 }
-
 // POST API
 async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
     await ZOHO.CREATOR.init();
@@ -199,7 +241,7 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
               // console.log("Order count:", before_order_cnt);
               let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
               // console.log(disabledCards)
-              fetchRecords(appName, "All_Menu_Items", disabledCards, currentItemID ,before_order_cnt[0], orders_id);
+              fetchRecords(appName, "All_Menu_Items", disabledCards, currentItemID ,before_order_cnt[0], orders_id, before_order_cnt[4]);
             });
           }
           else{
@@ -217,7 +259,7 @@ async function Post_manuAPi(appName, ReportName, currentItemID, currentCatID){
         // console.log("Order count:", before_order_cnt);
         let disabledCards = (before_order_cnt[0] === "0") ? "Store" : "disabled";
         // console.log(disabledCards)
-        fetchRecords(appName, "All_Menu_Items", disabledCards,currentItemID ,before_order_cnt[0],"null");
+        fetchRecords(appName, "All_Menu_Items", disabledCards, currentItemID ,before_order_cnt[0],"null", before_order_cnt[4]);
       });
     }
 }
@@ -236,8 +278,6 @@ function showPopup(itemName, catID, itemID) {
 // Called when user confirms
 function confirmOrder() {
     document.getElementById("popup").style.display = "none";
-    // console.log("cat_ID =", currentCatID);
-    // console.log("Item_ID =", currentItemID);
     // POST API
     Post_manuAPi(appName, "Your_Picks", currentItemID, currentCatID)
 }

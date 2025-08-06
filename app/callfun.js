@@ -120,15 +120,15 @@ function closeEditModal() {
 }
 
 // Placeholder: your slider init function
-function startSliderForCard(sliderId, images) {
-    const slider = document.getElementById(sliderId);
-    if (slider) {
-        const imgs = slider.getElementsByTagName("img");
-        for (let i = 0; i < images.length && i < imgs.length; i++) {
-            imgs[i].src = images[i];
-        }
-    }
-}
+// function startSliderForCard(sliderId, images) {
+//     const slider = document.getElementById(sliderId);
+//     if (slider) {
+//         const imgs = slider.getElementsByTagName("img");
+//         for (let i = 0; i < images.length && i < imgs.length; i++) {
+//             imgs[i].src = images[i];
+//         }
+//     }
+// }
 function startSliderForCard(sliderId, imageList) {
     const slider = document.getElementById(sliderId);
     if (!slider) return;
@@ -177,11 +177,14 @@ const billingTableBody = document.getElementById("billingTableBody");
 // const grandTotal = document.getElementById("grandTotal");
 const billcontainer = document.getElementById("billingContainer");
 
-let orders = []; // dynamically fetched from Creator
+// let orders = []; // dynamically fetched from Creator
 
 // Initialize billing
 function billing() {
-  fetchRecords(appName, "Your_Picks_Report", "BillingRecords", "null", "null", "null");
+    getStaffId_CheckOrderCount().then((shiftResp) => {
+        fetchRecords(appName, "Your_Picks_Report", "BillingRecords", "null", "null", shiftResp[0],shiftResp[4]);
+    });
+  
 }
 
 // Event listeners
@@ -233,4 +236,120 @@ function renderBillingPopup(ordersObj) {
         <td colspan="2">${item.name}</td>
     </tr>
   `).join("");
+}
+// Export URL
+function billexportPDF(){
+    getLoginUserID().then((loginresp) => {
+        var exportURLLink = document.getElementById("exportPDFID");
+        exportURLLink.href = "https://creatorapp.zoho.com/export/zentegra/zeneats/pdf/Order_Summary/DZW0GzhuzTdkDxtdKMMG4CTqAEA5R2psBt2ra9Z8AKN00E0kDmC5mea69kFzTsk0Wh2sW8UR3hmeyMqgqM1HQ6jPRhTnhj7xyS15?email="+loginresp;
+    });
+}
+
+// Add Expense Modal
+// DOM elements
+const expebseBtn = document.getElementById("expenseBtn");
+const expensePopup = document.getElementById("expensePopup");
+
+
+// Event listeners
+if (expebseBtn){
+expebseBtn.addEventListener('click', openexpensePopup);
+}
+// Billing popup handlers
+function openexpensePopup() {
+    expensePopup.style.display = "flex";
+    // renderBillingPopup();
+}
+
+function expense(){
+    getStaffId_CheckOrderCount().then((shiftResp) => {
+        fetchRecords(appName, "Your_Picks_Report", "expenseAll", "null", "null", shiftResp[0],shiftResp[4]);
+        fetchRecords(appName, "All_Expenses", "getExpanse" , "null", "null", "null", shiftResp[4]);
+    });
+}
+function expenseValidaton(){
+    var actualAmt = parseFloat(document.getElementById("actual").value) || 0;
+    var amt_spend = parseFloat(document.getElementById("spent").value) || 0;
+    let flag = false;
+    console.log(amt_spend)
+    if(amt_spend >= 0){
+        if (amt_spend <= actualAmt && amt_spend !=0) {
+            var reci_amt = actualAmt - amt_spend;
+            document.getElementById("receivable").value = reci_amt.toFixed(2);
+            document.getElementById("error_spent").innerHTML = "";
+            flag = true;
+        } else {
+            document.getElementById("error_spent").innerHTML = "Please enter a valid spent amount";
+            document.getElementById("spent").value = "none";
+            document.getElementById("receivable").value = 0;
+            flag = false;
+        }
+    }else{
+        flag = false;
+    }
+    return flag;
+}
+async function SaveExpense() {
+    var actualAmt = parseFloat(document.getElementById("actual").value) || 0;
+    var amt_spend = parseFloat(document.getElementById("spent").value) || 0;
+    var Recei_bal = parseFloat(document.getElementById("receivable").value) || 0;
+    var validate_resp = expenseValidaton();
+    // console.log(validate_resp)
+    if(validate_resp){
+        await ZOHO.CREATOR.init();
+        const loginuserID = await getLoginUserID();
+        const Staffconfig = {
+            appName: appName,
+            reportName: "All_Staffs",
+            criteria: `(Email == "${loginuserID}")`
+        };
+        const Staff_response = await ZOHO.CREATOR.API.getAllRecords(Staffconfig);
+        const Staffdata = Staff_response.data;
+        if (Staffdata && Staffdata.length > 0) {
+            const stafff_ID = Staffdata[0]["ID"];
+            const staff_shift_id = Staffdata[0]["Shift_Allocation"]["ID"];
+            var JsonFields ={
+            "data" : {
+                "Staff" : stafff_ID,
+                "Actual_Amount" : actualAmt,
+                "Amount_Spent": amt_spend,
+                "Receivable_Balance" : Recei_bal,
+                "Date_field" : getCurrentDateDDMMYYYY()
+                }
+            }
+            const Postconfig = {
+                appName : appName,
+                formName : "Add_Expense",
+                data : JsonFields
+            }
+            ZOHO.CREATOR.API.addRecord(Postconfig).then(function(response){
+                // console.log(response)
+                if(response.code == 3000){
+                    fetchRecords(appName, "All_Expenses", "getExpanse" , "null", "null", "null", staff_shift_id);
+                    // const getExpens_config = {
+                    // appName: appName,
+                    // reportName: "All_Expenses",
+                    // id :  response.data.ID
+                    // };
+                    // ZOHO.CREATOR.API.getRecordById(getExpens_config).then(function(response){
+                    //     console.log(response.data);
+                    // });
+                }
+            });
+        }
+    }
+    else{
+        document.getElementById("error_form").innerHTML = "Please enter a valid input";
+    }
+}
+
+function closeExpenseModal(){
+    const modalContent = document.querySelector('.expense-container');
+    const modalWrapper = document.querySelector('.expense-popup');
+
+    modalContent.style.animation = 'slideOut 0.3s ease-in';
+
+    setTimeout(() => {
+        modalWrapper.style.display = 'none';
+    }, 100);
 }

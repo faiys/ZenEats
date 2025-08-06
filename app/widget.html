@@ -48,11 +48,17 @@
         <div id="category-buttons" class="categories"></div>
       </div>
       <!-- Billing button -->
-      <div class="col-4" id = "billingContainer">
-        <button class="billing-btn float-right m-3" id="billingBtn" onclick="billing()">
+      <div class="col-4">
+        <div id="expensecontainer">
+          <button type="button" class="billing-btn m-3" id="expenseBtn" onclick="expense()">
+            Add Expense
+          </button>
+        </div>
+        <div id="billingcontainer">
+          <button class="billing-btn m-3" id="billingBtn" onclick="billing()">
             View Order's
-            <!-- <span class="cart-count" id="cartCount">0</span> -->
-        </button>
+          </button>
+        </div>
       </div>
     </div>
     
@@ -65,7 +71,7 @@
                   <div class="order-date" id="currendateID"></div>
                   <h2 class="billing-title">Order Summary <span class="cart-count" id="cartCount">0</span></h2>
                 </div>
-                <a class="pdf-btn rounded-pill m-3" href="https://creatorapp.zoho.com/export/zentegra/zeneats/pdf/Order_Summary/DZW0GzhuzTdkDxtdKMMG4CTqAEA5R2psBt2ra9Z8AKN00E0kDmC5mea69kFzTsk0Wh2sW8UR3hmeyMqgqM1HQ6jPRhTnhj7xyS15" target="_blank">
+                <a class="pdf-btn rounded-pill m-3" id="exportPDFID" target="_blank" onclick="billexportPDF()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M5.523 10.424c.14-.082.293-.162.459-.238a7.878 7.878 0 0 1-.45.606c-.28.337-.498.516-.635.572a.266.266 0 0 1-.035.012.282.282 0 0 1-.026-.044c-.056-.11-.054-.216.04-.36.106-.165.319-.354.647-.548zm2.455-1.647c-.119.025-.237.05-.356.078a21.148 21.148 0 0 0 .5-1.05 12.045 12.045 0 0 0 .51.858c-.217.032-.436.07-.654.114zm2.525.939a3.881 3.881 0 0 1-.435-.41c.228.005.434.022.612.054.317.057.466.147.518.209a.095.095 0 0 1 .026.064.436.436 0 0 1-.06.2.307.307 0 0 1-.094.124.107.107 0 0 1-.069.015c-.09-.003-.258-.066-.498-.256zM8.278 4.97c-.04.244-.108.524-.2.829a4.86 4.86 0 0 1-.089-.346c-.076-.353-.087-.63-.046-.822.038-.177.11-.248.196-.283a.517.517 0 0 1 .145-.04c.013.03.028.092.032.198.005.122-.007.277-.038.465z"/>
                         <path fill-rule="evenodd" d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3zM4.165 13.668c.09.18.23.343.438.419.207.075.412.04.58-.03.318-.13.635-.436.926-.786.333-.401.683-.927 1.021-1.51a11.651 11.651 0 0 1 1.997-.406c.3.383.61.713.91.95.28.22.603.403.934.417a.856.856 0 0 0 .51-.138c.155-.101.27-.247.354-.416.09-.181.145-.37.138-.563a.844.844 0 0 0-.2-.518c-.226-.27-.596-.4-.96-.465a5.76 5.76 0 0 0-1.335-.05 10.954 10.954 0 0 1-.98-1.686c.25-.66.437-1.284.52-1.794.036-.218.055-.426.048-.614a1.238 1.238 0 0 0-.127-.538.7.7 0 0 0-.477-.365c-.202-.043-.41 0-.601.077-.377.15-.576.47-.651.823-.073.34-.04.736.046 1.136.088.406.238.848.43 1.295a19.697 19.697 0 0 1-1.062 2.227 7.662 7.662 0 0 0-1.482.645c-.37.22-.699.48-.897.787-.21.326-.275.714-.08 1.103z"/>
@@ -95,6 +101,91 @@
         </div>
     </div>
     
+    <!-- Add Expense Popup -->
+
+     <div class="expense-popup" id="expensePopup" style="display: none;">
+        <div class="expense-container">
+            <div class="modal-header">
+                <button class="close-btn" onclick="closeExpenseModal()">
+                    <i class="fas fa-times"></i>❌
+                </button>
+                <h2 class="modal-title">Expense</h2>
+            </div>
+            <section class="d-flex">
+              <div style="width: 60%;">
+                <form class="form" id="expenseForm">
+                  <p id="error_form" class="error-message"></p>
+                  <div class="form-group">
+                      <label for="actual">Actual Amount</label>
+                      <div class="input-container">
+                          <input type="number" 
+                                id="actual" 
+                                name="actual" 
+                                placeholder="0.00" 
+                                autocomplete="off"
+                                step="0.01"
+                                min="0" required
+                                  readonly>
+                          <div class="currency-symbol">$</div>
+                      </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="spent">Amount Spent</label>
+                      <div class="input-container">
+                          <input type="number" 
+                                id="spent" 
+                                name="spent" 
+                                placeholder="0.00" 
+                                autocomplete="off"
+                                step="0.01"
+                                min="0" onchange="expenseValidaton()" required>
+                          <div class="currency-symbol">$</div>
+                      </div>
+                      <p id="error_spent" class="error-message"></p>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="receivable">Receivable Balance</label>
+                      <div class="input-container">
+                          <input type="number" 
+                                id="receivable" 
+                                name="receivable" 
+                                placeholder="0.00" 
+                                autocomplete="off"
+                                step="0.01"
+                                min="0" required
+                                readonly>
+                          <div class="currency-symbol">$</div>
+                      </div>
+                  </div>
+
+                  <div class="button-group">
+                      <a class="btn btn-outline-success order-btn"  onclick="SaveExpense()">
+                          Save Changes
+                      </a>
+                  </div>
+                </form>
+              </div>
+              <div class="right-section" style="width: 40%; margin: 5px; padding: 5px;">
+                <div class="amount-container" id="container1">
+                    <h5>Actual Amount</h5>
+                    <div class="amount-text" id="actamt">0</div>
+                </div>
+                <div class="amount-container" id="container2">
+                    <h5>Amount Spent</h5>
+                    <div class="amount-text" id="spentamt">0</div>
+                </div>
+                <div class="amount-container" id="container3">
+                    <h5>Receivable Balance</h5>
+                    <div class="amount-text" id="recamt">0</div>
+                </div>
+              </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- loader -->
     <div id="loader" class="loader-overlay" style="display: none;">
     <div class="loader"></div>
     </div>
@@ -134,7 +225,7 @@
     <!-- Footer -->
     <div class="footer">
         <p>"People who love to eat are always the best people"</p>
-        <p>Contact us: myzentegra@gmail.com | Phone: </p>
+        <p>Contact us: myzentegra@gmail.com</p>
     </div>
   </body>
   <script src = "callfun.js"></script>
